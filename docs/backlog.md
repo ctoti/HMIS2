@@ -7,15 +7,18 @@ Current epic: **Phase 0 — Foundations (Weeks 1–2)**
 - [x] Agent working rules (`.cursorrules`)
 - [x] ADR process and template (ADR 0001)
 - [ ] BPM engine ADR accepted (ADR 0002, Q1)
-- [ ] Event bus ADR (Q2)
-- [ ] API gateway ADR (Q3)
-- [ ] Monorepo scaffold per `.cursorrules` §3 with root `Makefile` (`make test`, `make up`)
-- [ ] CI pipeline: build, test, lint, SAST, dependency scan
-- [ ] Local dev stack (`infra/docker`): PostgreSQL 15, Redis 7, Keycloak, event bus
-- [ ] Keycloak realm: OIDC clients, facility-scoped roles, MFA for admin + governance
-- [ ] `libs/common-java`: RFC 7807 errors, correlation ID, JSON logging with PII redaction, hash-chained audit log
-- [ ] `libs/common-ts`: API client, auth, logger, i18n setup
-- [ ] Terraform skeleton for dev environment
+- [x] Event bus ADR proposed (ADR 0003, Q2) — awaiting acceptance
+- [x] API gateway ADR proposed (ADR 0004, Q3) — awaiting acceptance
+- [x] Monorepo tooling: Maven aggregator, npm workspaces, root `Makefile` (ADR 0005)
+- [x] CI pipeline: build, test, lint, gitleaks, Semgrep, OSV-Scanner (`.github/workflows/pha-hmg-ci.yml`)
+- [x] Local dev stack (`infra/docker`): PostgreSQL 15, Redis 7, Keycloak 26, Kafka 3.9
+- [x] Keycloak realm: roles, facility groups claim, PKCE web client, TOTP for admin + governance
+- [x] `libs/common-java`: RFC 7807 errors, correlation ID, JSON logging with PII redaction, hash-chained audit log
+- [x] `libs/common-ts`: logger, PII redaction, problem details, correlation ID
+- [ ] `libs/common-ts`: API client, OIDC auth, i18n setup (with web-portal shell)
+- [ ] `services/api-gateway` with Spring Cloud Gateway (after ADR 0004 accepted)
+- [ ] Audit log persistence: append-only table + Flyway migration, first used by hr-service
+- [ ] Terraform skeleton for dev environment (blocked on Q5: hosting target)
 
 ## Phase 1 — Core Platform
 

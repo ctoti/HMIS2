@@ -65,7 +65,7 @@ class ProblemDetailsAdviceTest {
 
         @GetMapping("/boom")
         String boom() {
-            throw new IllegalStateException("db password=hunter2 leaked");
+            throw new IllegalStateException("connection refused by db-internal-01:5432");
         }
     }
 }
