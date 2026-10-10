@@ -21,7 +21,7 @@ It INTEGRATES with existing systems — never replaces them:
 ============================================================
 2. TECH STACK — DO NOT SUBSTITUTE WITHOUT AN ADR
 ============================================================
-Backend:        Java 17 + Spring Boot 3.x (primary)
+Backend:        Java 17 + Spring Boot 4.x (primary; see ADR 0006)
                 Node.js 20 + NestJS (BPM integration + light services)
 Frontend:       React 18 + TypeScript + Vite + TanStack Query + Tailwind
 Mobile/PWA:     React PWA + Workbox + Dexie (IndexedDB)

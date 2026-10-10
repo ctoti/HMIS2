@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.JsonStreamContext;
+import tools.jackson.core.TokenStreamContext;
 import org.junit.jupiter.api.Test;
 
 class PiiValueMaskerTest {
@@ -32,10 +32,10 @@ class PiiValueMaskerTest {
         assertThat(masker.mask(field("count"), 42)).isNull();
     }
 
-    private static JsonStreamContext field(String name) {
-        JsonStreamContext context = mock(JsonStreamContext.class);
+    private static TokenStreamContext field(String name) {
+        TokenStreamContext context = mock(TokenStreamContext.class);
         when(context.hasCurrentName()).thenReturn(true);
-        when(context.getCurrentName()).thenReturn(name);
+        when(context.currentName()).thenReturn(name);
         return context;
     }
 }

@@ -11,3 +11,4 @@ Questions needing human review. Agents proceed with the stated default and recor
 | Q5 | Hosting target for dev/prod (government data centre, cloud region, hybrid)? | Undecided — drives Terraform provider and data-residency design | — | Open |
 | Q6 | What integration interfaces do IFMS, Alesco, and Clinical HIMS expose (API, file drop, DB views)? | Undecided — blocks integration-service design | — | Open |
 | Q7 | Maven or Gradle; which JS monorepo tooling? | Maven multi-module + npm workspaces | [0005](adr/0005-build-tooling.md) | Open |
+| Q8 | Which Flowable release supports Spring Boot 4 (ADR 0006), and is it open source? | Check before scaffolding bpm-service; revisit ADR 0002 if none | [0006](adr/0006-spring-boot-4.md) | Open |

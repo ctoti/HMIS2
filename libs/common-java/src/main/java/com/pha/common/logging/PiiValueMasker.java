@@ -1,6 +1,6 @@
 package com.pha.common.logging;
 
-import com.fasterxml.jackson.core.JsonStreamContext;
+import tools.jackson.core.TokenStreamContext;
 import net.logstash.logback.mask.ValueMasker;
 
 /**
@@ -9,8 +9,8 @@ import net.logstash.logback.mask.ValueMasker;
 public class PiiValueMasker implements ValueMasker {
 
     @Override
-    public Object mask(JsonStreamContext context, Object value) {
-        if (context.hasCurrentName() && PiiRedactor.isSensitiveKey(context.getCurrentName())) {
+    public Object mask(TokenStreamContext context, Object value) {
+        if (context.hasCurrentName() && PiiRedactor.isSensitiveKey(context.currentName())) {
             return PiiRedactor.MASK;
         }
         if (value instanceof CharSequence text) {
