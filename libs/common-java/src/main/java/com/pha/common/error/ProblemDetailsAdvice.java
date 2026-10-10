@@ -48,10 +48,12 @@ public class ProblemDetailsAdvice extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(
             Exception ex, Object body, HttpHeaders headers, HttpStatusCode statusCode, WebRequest request) {
-        if (body instanceof ProblemDetail problem) {
+        // Spring builds the ProblemDetail inside super for its own exceptions, so tag the result, not the input.
+        ResponseEntity<Object> response = super.handleExceptionInternal(ex, body, headers, statusCode, request);
+        if (response != null && response.getBody() instanceof ProblemDetail problem) {
             withCorrelationId(problem);
         }
-        return super.handleExceptionInternal(ex, body, headers, statusCode, request);
+        return response;
     }
 
     private static ProblemDetail withCorrelationId(ProblemDetail problem) {
