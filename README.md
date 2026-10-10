@@ -13,5 +13,3 @@ Phase 0 — Foundations. No services are scaffolded yet; see [`docs/backlog.md`]
 - [`docs/questions.md`](docs/questions.md) — open questions awaiting human review.
 - [`docs/backlog.md`](docs/backlog.md) — master backlog.
 - [`docs/tech-debt.md`](docs/tech-debt.md) — tech debt log.
-
-Open this directory (not the repository root) as the workspace in Cursor so `.cursorrules` applies.
