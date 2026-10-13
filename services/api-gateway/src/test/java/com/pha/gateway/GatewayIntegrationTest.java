@@ -129,6 +129,25 @@ class GatewayIntegrationTest {
     }
 
     @Test
+    void acceptsWritesWithBearerTokenAndNoCookies() {
+        client.mutateWith(mockJwt().jwt(jwt -> jwt.subject("user-write")))
+                .post().uri("/api/v1/hr/ping")
+                .exchange()
+                .expectStatus().isOk();
+    }
+
+    @Test
+    void requiresCsrfTokenForWritesThatCarryCookies() {
+        client.mutateWith(mockJwt().jwt(jwt -> jwt.subject("user-cookie")))
+                .post().uri("/api/v1/hr/ping")
+                .cookie("SESSION", "abc")
+                .exchange()
+                .expectStatus().isForbidden()
+                .expectBody()
+                .jsonPath("$.type").isEqualTo("urn:pha:problem:forbidden");
+    }
+
+    @Test
     void allowsPreflightFromThePortal() {
         client.options().uri("/api/v1/hr/ping")
                 .header(HttpHeaders.ORIGIN, "http://localhost:5173")
