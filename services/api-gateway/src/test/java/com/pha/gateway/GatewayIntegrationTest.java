@@ -134,6 +134,8 @@ class GatewayIntegrationTest {
     void acceptsWritesWithBearerTokenAndNoCookies() {
         client.mutateWith(mockJwt().jwt(jwt -> jwt.subject("user-write")))
                 .post().uri("/api/v1/hr/ping")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("{\"days\":3}")
                 .exchange()
                 .expectStatus().isOk();
     }
@@ -143,6 +145,8 @@ class GatewayIntegrationTest {
         client.mutateWith(mockJwt().jwt(jwt -> jwt.subject("user-cookie")))
                 .post().uri("/api/v1/hr/ping")
                 .cookie("SESSION", "abc")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("{\"days\":3}")
                 .exchange()
                 .expectStatus().isForbidden()
                 .expectBody()
@@ -188,6 +192,8 @@ class GatewayIntegrationTest {
     }
 
     private static void respond(HttpExchange exchange, int status, String json) throws IOException {
+        // Like a real service, consume the request body before answering, so the connection is never left half-read.
+        exchange.getRequestBody().readAllBytes();
         byte[] body = json.getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "application/json");
         exchange.sendResponseHeaders(status, body.length);
