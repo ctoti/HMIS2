@@ -16,7 +16,7 @@ import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -102,11 +102,14 @@ class JpaAuditLogIntegrationTest {
         auditLog.append(record("{}"));
 
         assertThatThrownBy(() -> jdbc.update("UPDATE audit.audit_log SET payload = '{}'"))
-                .isInstanceOf(DataAccessException.class).hasMessageContaining("append-only");
+                .isInstanceOf(DataIntegrityViolationException.class)
+                .rootCause().hasMessageContaining("append-only");
         assertThatThrownBy(() -> jdbc.update("DELETE FROM audit.audit_log"))
-                .isInstanceOf(DataAccessException.class).hasMessageContaining("append-only");
+                .isInstanceOf(DataIntegrityViolationException.class)
+                .rootCause().hasMessageContaining("append-only");
         assertThatThrownBy(() -> jdbc.execute("TRUNCATE audit.audit_log"))
-                .isInstanceOf(DataAccessException.class).hasMessageContaining("append-only");
+                .isInstanceOf(DataIntegrityViolationException.class)
+                .rootCause().hasMessageContaining("append-only");
     }
 
     @Test
@@ -155,10 +158,14 @@ class JpaAuditLogIntegrationTest {
 
     @Test
     void migratingAgainIsANoOp() {
+        String historyRows = "SELECT count(*) FROM audit.flyway_audit_history";
+        Integer before = jdbc.queryForObject(historyRows, Integer.class);
+
         migrator.migrate();
 
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM audit.flyway_audit_history WHERE success", Integer.class))
-                .isEqualTo(1);
+        assertThat(jdbc.queryForObject(historyRows, Integer.class)).isEqualTo(before);
+        assertThat(jdbc.queryForObject(
+                "SELECT success FROM audit.flyway_audit_history WHERE version = '1'", Boolean.class)).isTrue();
     }
 
     private long sequenceNoOf(SealedAuditEntry entry) {

@@ -33,7 +33,7 @@ CREATE FUNCTION reject_audit_log_change() RETURNS trigger
 LANGUAGE plpgsql AS $$
 BEGIN
     RAISE EXCEPTION 'audit_log is append-only: % is not allowed', TG_OP
-        USING ERRCODE = 'insufficient_privilege';
+        USING ERRCODE = 'restrict_violation';
 END;
 $$;
 
