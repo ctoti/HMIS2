@@ -7,9 +7,9 @@
 <included>
     <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
+            <decorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
                 <valueMasker class="com.pha.common.logging.PiiValueMasker"/>
-            </jsonGeneratorDecorator>
+            </decorator>
         </encoder>
     </appender>
 </included>

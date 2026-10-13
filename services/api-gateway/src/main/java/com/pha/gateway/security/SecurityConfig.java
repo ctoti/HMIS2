@@ -19,12 +19,14 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     @Bean
-    SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, ProblemDetailsSecurityHandler problems) {
+    SecurityWebFilterChain securityWebFilterChain(
+            ServerHttpSecurity http, ProblemDetailsSecurityHandler problems, PhaGatewayProperties properties) {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
-                .cors(Customizer.withDefaults())
+                // Passed explicitly: Security ignores a CorsConfigurationSource bean when the gateway defines another.
+                .cors(cors -> cors.configurationSource(corsConfigurationSource(properties)))
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers(HttpMethod.OPTIONS).permitAll()
                         .pathMatchers("/actuator/health", "/actuator/health/**").permitAll()
@@ -39,8 +41,7 @@ public class SecurityConfig {
                 .build();
     }
 
-    @Bean
-    CorsConfigurationSource corsConfigurationSource(PhaGatewayProperties properties) {
+    static CorsConfigurationSource corsConfigurationSource(PhaGatewayProperties properties) {
         CorsConfiguration cors = new CorsConfiguration();
         cors.setAllowedOrigins(properties.allowedOrigins());
         cors.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
