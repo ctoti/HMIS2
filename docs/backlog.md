@@ -12,6 +12,7 @@ Current epic: **Phase 0 — Foundations (Weeks 1–2)**
 - [x] Monorepo tooling: Maven aggregator, npm workspaces, root `Makefile` (ADR 0005)
 - [x] Spring Boot 4.1 baseline (ADR 0006)
 - [x] CI pipeline: build, test, lint, gitleaks, Semgrep, OSV-Scanner (`.github/workflows/ci.yml`)
+- [x] CodeQL code scanning for Java and TypeScript (`.github/workflows/codeql.yml`)
 - [x] Local dev stack (`infra/docker`): PostgreSQL 15, Redis 7, Keycloak 26, Kafka 3.9
 - [x] Keycloak realm: roles, facility groups claim, PKCE web client, TOTP for admin + governance
 - [x] `libs/common-java`: RFC 7807 errors, correlation ID, JSON logging with PII redaction, hash-chained audit log
