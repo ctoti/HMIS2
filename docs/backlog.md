@@ -19,7 +19,7 @@ Current epic: **Phase 0 — Foundations (Weeks 1–2)**
 - [x] `libs/common-ts`: logger, PII redaction, problem details, correlation ID
 - [x] `libs/common-ts`: API client (bearer token, correlation ID, Idempotency-Key, RFC 7807 errors, retry with backoff)
 - [x] `apps/web-portal` shell: OIDC sign-in, role-based navigation, i18n (en, tpi), offline banner (ADR 0007)
-- [ ] `services/api-gateway` with Spring Cloud Gateway (after ADR 0004 accepted)
+- [x] `services/api-gateway`: Spring Cloud Gateway with JWT validation, per-user rate limiting, retries, circuit breaker, CORS (ADR 0004 still Proposed)
 - [ ] Audit log persistence: append-only table + Flyway migration, first used by hr-service
 - [ ] Terraform skeleton for dev environment (blocked on Q5: hosting target)
 

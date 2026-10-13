@@ -11,3 +11,4 @@
   - Neutral: can sit behind a Kubernetes ingress controller for TLS termination.
 - Alternatives considered:
   - Kong — rejected for now: capable, but adds a separate runtime (Lua/OpenResty), its own database or declarative config, and some features need Kong Enterprise.
+- Implementation note (2026-10-13): built in `services/api-gateway` on Spring Cloud 2025.1.3 (Gateway 5.0.3, WebFlux server), which supports Spring Boot 4.0 and 4.1. Status stays Proposed until reviewed.

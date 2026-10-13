@@ -1,0 +1,91 @@
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+
+spring:
+  application:
+    name: api-gateway
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OIDC_ISSUER_URI:http://localhost:8180/realms/pha-hmg}
+          audiences: ${OIDC_AUDIENCE:pha-hmg-api}
+  webflux:
+    problemdetails:
+      enabled: true
+  cloud:
+    gateway:
+      server:
+        webflux:
+          # Applied to every route, in this order: limit, then break the circuit, then retry inside it.
+          default-filters:
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@userOrIpKeyResolver}"
+                redis-rate-limiter.replenishRate: ${RATE_LIMIT_PER_SECOND:10}
+                redis-rate-limiter.burstCapacity: ${RATE_LIMIT_BURST:20}
+            - name: CircuitBreaker
+              args:
+                name: backend
+                fallbackUri: forward:/fallback/unavailable
+            - name: Retry
+              args:
+                retries: 2
+                methods: GET
+                series: SERVER_ERROR
+                exceptions: java.io.IOException, java.util.concurrent.TimeoutException
+                backoff:
+                  firstBackoff: 100ms
+                  maxBackoff: 1s
+                  factor: 2
+                  basedOnPreviousValue: false
+          routes:
+            - id: hr-service
+              uri: ${HR_SERVICE_URI:http://localhost:8081}
+              predicates:
+                - Path=/api/v1/hr/**
+            - id: facilities-service
+              uri: ${FACILITIES_SERVICE_URI:http://localhost:8082}
+              predicates:
+                - Path=/api/v1/facilities/**
+            - id: projects-service
+              uri: ${PROJECTS_SERVICE_URI:http://localhost:8083}
+              predicates:
+                - Path=/api/v1/projects/**
+            - id: governance-service
+              uri: ${GOVERNANCE_SERVICE_URI:http://localhost:8084}
+              predicates:
+                - Path=/api/v1/governance/**
+            - id: bpm-service
+              uri: ${BPM_SERVICE_URI:http://localhost:8085}
+              predicates:
+                - Path=/api/v1/bpm/**
+            - id: sync-service
+              uri: ${SYNC_SERVICE_URI:http://localhost:8086}
+              predicates:
+                - Path=/api/v1/sync/**
+            - id: notification-service
+              uri: ${NOTIFICATION_SERVICE_URI:http://localhost:8087}
+              predicates:
+                - Path=/api/v1/notifications/**
+
+pha:
+  gateway:
+    allowed-origins: ${PORTAL_ORIGINS:http://localhost:5173}
+    backend-timeout: ${BACKEND_TIMEOUT:10s}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
