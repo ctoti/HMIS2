@@ -31,6 +31,8 @@
         <!-- Security overrides of Boot 4.1.1's managed versions (OSV findings); drop once a Boot release ships these. -->
         <tomcat.version>11.0.26</tomcat.version>
         <jackson-bom.version>3.1.7</jackson-bom.version>
+        <!-- Jackson 2 still comes in through Spring Cloud dependencies; keep it on the patched line too. -->
+        <jackson-2-bom.version>2.21.7</jackson-2-bom.version>
     </properties>
 
     <dependencyManagement>
