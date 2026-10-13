@@ -7,7 +7,8 @@ const SENSITIVE_KEY_SUFFIXES = [
   'phonenumber', 'mobile', 'address', 'contactnumber',
 ] as const;
 
-const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+// Bounded to RFC 5321 lengths so matching stays linear on hostile input (CodeQL polynomial ReDoS).
+const EMAIL = /[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,63}/g;
 
 // PNG numbers: any +675 number, or an 8-digit mobile starting with 7.
 const PHONE = /(?<![\d+])(?:\+675[\s-]?\d{3,4}[\s-]?\d{4}|7\d{3}[\s-]?\d{4})(?!\d)/g;

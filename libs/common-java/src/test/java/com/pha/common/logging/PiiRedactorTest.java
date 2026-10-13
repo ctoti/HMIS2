@@ -1,7 +1,9 @@
 package com.pha.common.logging;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
+import java.time.Duration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -62,5 +64,20 @@ class PiiRedactorTest {
     void passesThroughNullAndEmpty() {
         assertThat(PiiRedactor.redact(null)).isNull();
         assertThat(PiiRedactor.redact("")).isEmpty();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"%", "a", "a."})
+    void staysFastOnHostileInput(String unit) {
+        String hostile = "a@" + unit.repeat(50_000);
+
+        assertTimeoutPreemptively(Duration.ofSeconds(5), () -> PiiRedactor.redact(hostile));
+    }
+
+    @Test
+    void stillMasksLongQuotedValues() {
+        String json = "{\"name\":\"" + "x".repeat(2000) + "\"}";
+
+        assertThat(PiiRedactor.redact(json)).isEqualTo("{\"name\":\"[REDACTED]\"}");
     }
 }

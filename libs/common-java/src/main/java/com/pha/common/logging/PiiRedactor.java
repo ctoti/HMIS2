@@ -18,11 +18,12 @@ public final class PiiRedactor {
             "mrn", "medicalrecordnumber", "nationalid", "email", "phone",
             "phonenumber", "mobile", "address", "contactnumber");
 
+    // Repetition is bounded throughout so redaction stays linear on hostile log input (CodeQL polynomial ReDoS).
     private static final Pattern KEY_VALUE = Pattern.compile(
-            "(\"?)([A-Za-z_][A-Za-z0-9_.-]*)\\1(\\s*[:=]\\s*)(\"[^\"]*\"|[^\\s,;&}\\]]+)");
+            "(\"?)([A-Za-z_][A-Za-z0-9_.-]{0,63})\\1(\\s{0,8}[:=]\\s{0,8})(\"[^\"]{0,4096}\"|[^\\s,;&}\\]]{1,1024})");
 
     private static final Pattern EMAIL = Pattern.compile(
-            "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}");
+            "[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{1,253}\\.[A-Za-z]{2,63}");
 
     // PNG numbers: any +675 number, or an 8-digit mobile starting with 7.
     private static final Pattern PHONE = Pattern.compile(

@@ -18,6 +18,13 @@ describe('redactText', () => {
     );
   });
 
+  it.each(['%', 'a.'])('stays fast on hostile input made of %j', (unit) => {
+    const hostile = `a@${unit.repeat(50_000)}`;
+    const started = performance.now();
+    redactText(hostile);
+    expect(performance.now() - started).toBeLessThan(500);
+  });
+
   it('keeps ordinary numbers', () => {
     expect(redactText('processed 1234567 rows')).toBe('processed 1234567 rows');
   });
