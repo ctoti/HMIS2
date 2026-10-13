@@ -31,9 +31,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-@SpringBootTest(properties = {
-        "RATE_LIMIT_PER_SECOND=1", "RATE_LIMIT_BURST=2", "BACKEND_TIMEOUT=3s",
-        "logging.level.org.springframework.web.cors=DEBUG"})
+@SpringBootTest(properties = {"RATE_LIMIT_PER_SECOND=1", "RATE_LIMIT_BURST=2", "BACKEND_TIMEOUT=3s"})
 @Testcontainers
 class GatewayIntegrationTest {
 
@@ -44,6 +42,8 @@ class GatewayIntegrationTest {
     private static final AtomicInteger FLAKY_CALLS = new AtomicInteger();
     private static final HttpServer BACKEND = startBackend();
     private static final int DEAD_PORT = unusedPort();
+    // CORS compares the Origin with the request's own scheme and host, so preflights need an absolute URL.
+    private static final String PREFLIGHT_URL = "http://gateway.pha.local/api/v1/hr/ping";
 
     @Autowired
     private ApplicationContext context;
@@ -156,7 +156,7 @@ class GatewayIntegrationTest {
 
     @Test
     void allowsPreflightFromThePortal() {
-        client.options().uri("/api/v1/hr/ping")
+        client.options().uri(PREFLIGHT_URL)
                 .header(HttpHeaders.ORIGIN, "http://localhost:5173")
                 .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET")
                 .exchange()
@@ -166,7 +166,7 @@ class GatewayIntegrationTest {
 
     @Test
     void rejectsPreflightFromOtherOrigins() {
-        client.options().uri("/api/v1/hr/ping")
+        client.options().uri(PREFLIGHT_URL)
                 .header(HttpHeaders.ORIGIN, "https://evil.example")
                 .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET")
                 .exchange()
