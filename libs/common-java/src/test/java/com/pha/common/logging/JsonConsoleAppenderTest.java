@@ -12,6 +12,7 @@ import ch.qos.logback.core.OutputStreamAppender;
 import ch.qos.logback.core.status.Status;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -50,6 +51,8 @@ class JsonConsoleAppenderTest {
         OutputStreamAppender<ILoggingEvent> appender = (OutputStreamAppender<ILoggingEvent>) root.getAppender("JSON_CONSOLE");
         LoggingEvent event = new LoggingEvent(Logger.class.getName(), root, Level.INFO,
                 "leave approved, notified nurse.kila@pha.gov.pg", null, null);
+        // A standalone LoggerContext has no MDC adapter; give the event its own empty MDC.
+        event.setMDCPropertyMap(Map.of());
 
         String json = new String(appender.getEncoder().encode(event), StandardCharsets.UTF_8);
 
