@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #f6f5f2;
+  --color-surface: #ffffff;
+  --color-ink: #1d1f1c;
+  --color-ink-muted: #5d625a;
+  --color-line: #dcdcd4;
+  --color-accent: #8a5f0f;
+  --color-accent-soft: #f3e7cc;
+  --color-on-accent: #ffffff;
+  --color-warn: #7a4f00;
+  --color-warn-soft: #f6e4bf;
+  --color-crit: #9b2c1f;
+  --color-crit-soft: #f5d9d3;
+  /* System fonts only: rural clinics may be offline, so the portal never fetches web fonts. */
+  --font-display: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #151714;
+    --color-surface: #1d201c;
+    --color-ink: #ebeae4;
+    --color-ink-muted: #a3a89d;
+    --color-line: #33372f;
+    --color-accent: #e0aa45;
+    --color-accent-soft: #3a2f17;
+    --color-on-accent: #151714;
+    --color-warn: #e8b85c;
+    --color-warn-soft: #3a2e14;
+    --color-crit: #f0907f;
+    --color-crit-soft: #3d1f1a;
+    color-scheme: dark;
+  }
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}

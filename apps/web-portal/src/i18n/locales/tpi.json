@@ -1,0 +1,53 @@
+{
+  "app": {
+    "name": "PHA Portal bilong Lukautim Helt",
+    "skipToContent": "Kalap i go long namba wan hap",
+    "openMenu": "Opim menu",
+    "closeMenu": "Pasim menu",
+    "mainNav": "Namba wan"
+  },
+  "auth": {
+    "signIn": "Kam insait",
+    "signOut": "Go ausait",
+    "checking": "Mipela i sekim yu…",
+    "signInTitle": "Kam insait pastaim",
+    "signInBody": "Yusim akaun bilong yu long PHA. Ol admin na ol ofisa bilong gavman bai kisim wanpela namba long app bilong ol.",
+    "error": "Yu no inap kam insait: {{message}}. Traim gen, o toktok long ICT helpdesk.",
+    "noAccessTitle": "Yu no gat rait long {{module}}",
+    "noAccessBody": "Askim bos bilong yu long kisim rait long akaun bilong yu."
+  },
+  "nav": {
+    "home": "Haus",
+    "hr": "Ol wokman",
+    "facilities": "Ol haus sik na klinik",
+    "projects": "Ol projek na program",
+    "governance": "Lukautim wok"
+  },
+  "home": {
+    "title": "Welkam",
+    "yourAccess": "Rait bilong yu",
+    "roles": "Ol wok",
+    "facilities": "Ol haus sik",
+    "noFacilities": "I no gat haus sik yet",
+    "modules": "Ol hap",
+    "available": "Bai kam long Phase {{phase}}"
+  },
+  "module": {
+    "comingTitle": "{{module}} i kam",
+    "comingBody": "Dispela hap bai kam long Phase {{phase}}."
+  },
+  "roles": {
+    "platform-admin": "Admin bilong platfom",
+    "governance-officer": "Ofisa bilong gavman",
+    "hr-officer": "Ofisa bilong ol wokman",
+    "facilities-officer": "Ofisa bilong ol haus sik",
+    "projects-officer": "Ofisa bilong ol projek",
+    "staff": "Wokman"
+  },
+  "offline": "Yu no gat netwok. Yu ken ritim yet; ol senis bai i go taim netwok i kam bek.",
+  "language": "Tok ples",
+  "notFound": {
+    "title": "Mipela i no painim dispela pes",
+    "back": "Go bek long haus"
+  }
+}

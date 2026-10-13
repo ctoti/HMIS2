@@ -1,0 +1,237 @@
+{
+  "realm": "pha-hmg",
+  "displayName": "PHA HMG Platform",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "resetPasswordAllowed": true,
+  "bruteForceProtected": true,
+  "failureFactor": 5,
+  "passwordPolicy": "length(12) and notUsername and passwordHistory(5)",
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "otpPolicyType": "totp",
+  "otpPolicyAlgorithm": "HmacSHA1",
+  "otpPolicyDigits": 6,
+  "otpPolicyPeriod": 30,
+  "browserFlow": "browser-mfa",
+  "roles": {
+    "realm": [
+      {
+        "name": "platform-admin",
+        "description": "Platform administration; MFA required"
+      },
+      {
+        "name": "governance-officer",
+        "description": "Governance, KPI and board reporting; MFA required"
+      },
+      {
+        "name": "hr-officer",
+        "description": "HR establishment, rosters, leave"
+      },
+      {
+        "name": "facilities-officer",
+        "description": "Facilities, assets, work orders"
+      },
+      {
+        "name": "projects-officer",
+        "description": "Projects, grants, procurement"
+      },
+      {
+        "name": "staff",
+        "description": "Any PHA staff member"
+      }
+    ]
+  },
+  "defaultRoles": [
+    "staff"
+  ],
+  "groups": [
+    {
+      "name": "facilities",
+      "path": "/facilities",
+      "subGroups": []
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "web-portal",
+      "name": "HMG Web Portal",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "implicitFlowEnabled": false,
+      "redirectUris": [
+        "http://localhost:5173/*"
+      ],
+      "webOrigins": [
+        "http://localhost:5173"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:5173/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "pha-hmg-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "facility-groups",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "config": {
+            "claim.name": "groups",
+            "full.path": "true",
+            "access.token.claim": "true",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "authenticatorConfig": [
+    {
+      "alias": "require-role-platform-admin",
+      "config": {
+        "condUserRole": "platform-admin",
+        "negate": "false"
+      }
+    },
+    {
+      "alias": "require-role-governance-officer",
+      "config": {
+        "condUserRole": "governance-officer",
+        "negate": "false"
+      }
+    }
+  ],
+  "authenticationFlows": [
+    {
+      "alias": "browser-mfa",
+      "description": "Browser login with OTP enforced for admin and governance roles",
+      "providerId": "basic-flow",
+      "topLevel": true,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "requirement": "ALTERNATIVE",
+          "priority": 10,
+          "userSetupAllowed": true,
+          "authenticatorFlow": false,
+          "autheticatorFlow": false,
+          "authenticator": "auth-cookie"
+        },
+        {
+          "requirement": "ALTERNATIVE",
+          "priority": 20,
+          "userSetupAllowed": true,
+          "authenticatorFlow": false,
+          "autheticatorFlow": false,
+          "authenticator": "identity-provider-redirector"
+        },
+        {
+          "requirement": "ALTERNATIVE",
+          "priority": 30,
+          "userSetupAllowed": true,
+          "authenticatorFlow": true,
+          "autheticatorFlow": true,
+          "flowAlias": "browser-mfa-forms"
+        }
+      ]
+    },
+    {
+      "alias": "browser-mfa-forms",
+      "description": "Username/password then role-conditional OTP",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "userSetupAllowed": true,
+          "authenticatorFlow": false,
+          "autheticatorFlow": false,
+          "authenticator": "auth-username-password-form"
+        },
+        {
+          "requirement": "CONDITIONAL",
+          "priority": 20,
+          "userSetupAllowed": true,
+          "authenticatorFlow": true,
+          "autheticatorFlow": true,
+          "flowAlias": "otp-platform-admin"
+        },
+        {
+          "requirement": "CONDITIONAL",
+          "priority": 30,
+          "userSetupAllowed": true,
+          "authenticatorFlow": true,
+          "autheticatorFlow": true,
+          "flowAlias": "otp-governance-officer"
+        }
+      ]
+    },
+    {
+      "alias": "otp-platform-admin",
+      "description": "OTP when user has the role named in require-role-platform-admin",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "userSetupAllowed": true,
+          "authenticatorFlow": false,
+          "autheticatorFlow": false,
+          "authenticator": "conditional-user-role",
+          "authenticatorConfig": "require-role-platform-admin"
+        },
+        {
+          "requirement": "REQUIRED",
+          "priority": 20,
+          "userSetupAllowed": true,
+          "authenticatorFlow": false,
+          "autheticatorFlow": false,
+          "authenticator": "auth-otp-form"
+        }
+      ]
+    },
+    {
+      "alias": "otp-governance-officer",
+      "description": "OTP when user has the role named in require-role-governance-officer",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "userSetupAllowed": true,
+          "authenticatorFlow": false,
+          "autheticatorFlow": false,
+          "authenticator": "conditional-user-role",
+          "authenticatorConfig": "require-role-governance-officer"
+        },
+        {
+          "requirement": "REQUIRED",
+          "priority": 20,
+          "userSetupAllowed": true,
+          "authenticatorFlow": false,
+          "autheticatorFlow": false,
+          "authenticator": "auth-otp-form"
+        }
+      ]
+    }
+  ]
+}

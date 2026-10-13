@@ -1,0 +1,29 @@
+# Build output
+target/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Dependencies
+node_modules/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*

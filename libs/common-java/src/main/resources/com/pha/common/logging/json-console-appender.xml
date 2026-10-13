@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  JSON console logging with PII masking. Include from a service's logback-spring.xml:
+    <include resource="com/pha/common/logging/json-console-appender.xml"/>
+    <root level="INFO"><appender-ref ref="JSON_CONSOLE"/></root>
+-->
+<included>
+    <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <decorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
+                <valueMasker class="com.pha.common.logging.PiiValueMasker"/>
+            </decorator>
+        </encoder>
+    </appender>
+</included>

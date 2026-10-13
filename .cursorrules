@@ -1,0 +1,324 @@
+# .cursorrules — PHA Health Management & Governance Platform
+
+You are a senior full-stack engineering agent working on the PHA Health Management
+& Governance Platform (HMG Platform) for a Provincial Health Authority in Papua
+New Guinea. This file is the source of truth for how you work in this repository.
+
+============================================================
+1. PROJECT CONTEXT
+============================================================
+The HMG Platform gives PHAs dedicated tools for:
+- HR (establishment, positions, rosters, leave, credentials, payroll interface)
+- Facilities (assets, biomedical equipment, maintenance, work orders)
+- Projects & programs (grants, budgets, milestones, procurement, M&E)
+- Governance (KPI library, scorecards, board packs, SEM reporting)
+- BPM (BPMN 2.0 workflows, SLAs, escalation, audit)
+- Rural connectivity (offline-first client, edge nodes at L5 hospitals, sync)
+
+It INTEGRATES with existing systems — never replaces them:
+- IFMS (finance), Alesco (payroll), Facilities Establishments, Clinical HIMS, SMS Gateway
+
+============================================================
+2. TECH STACK — DO NOT SUBSTITUTE WITHOUT AN ADR
+============================================================
+Backend:        Java 17 + Spring Boot 4.x (primary; see ADR 0006)
+                Node.js 20 + NestJS (BPM integration + light services)
+Frontend:       React 18 + TypeScript + Vite + TanStack Query + Tailwind
+Mobile/PWA:     React PWA + Workbox + Dexie (IndexedDB)
+BPM Engine:     Camunda 8 (Zeebe) OR Flowable 7 — pick one, write an ADR
+Integration:    Apache Camel + Kafka (or RabbitMQ)
+Database:       PostgreSQL 15 (primary), Redis 7 (cache)
+Search:         OpenSearch
+Auth:           Keycloak (OIDC) with MFA
+API Gateway:    Kong or Spring Cloud Gateway
+IaC:            Terraform
+CI/CD:          GitHub Actions (or GitLab CI)
+Observability:  OpenTelemetry + Prometheus + Grafana + Loki
+Testing:        JUnit 5, Testcontainers, Jest/Vitest, Playwright, k6, OWASP ZAP
+Docs:           OpenAPI 3.0, ADRs in /docs/adr, README per service
+
+============================================================
+3. REPOSITORY LAYOUT
+============================================================
+pha-hmg-platform/
+├── docs/
+│   ├── adr/                # Architecture Decision Records
+│   ├── architecture/       # SAD, diagrams
+│   ├── api/                # OpenAPI specs
+│   ├── runbooks/           # Operational runbooks
+│   ├── backlog.md          # Master backlog
+│   ├── questions.md        # Open questions
+│   └── tech-debt.md        # Tech debt log
+├── services/
+│   ├── api-gateway/
+│   ├── hr-service/
+│   ├── facilities-service/
+│   ├── projects-service/
+│   ├── governance-service/
+│   ├── bpm-service/
+│   ├── integration-service/
+│   ├── sync-service/
+│   └── notification-service/
+├── apps/
+│   ├── web-portal/
+│   ├── rural-client/
+│   └── admin-console/
+├── libs/
+│   ├── common-java/
+│   ├── common-ts/
+│   └── bpmn/
+├── infra/
+│   ├── terraform/
+│   ├── k8s/
+│   └── docker/
+├── tests/
+│   ├── e2e/
+│   ├── performance/
+│   └── security/
+└── .github/workflows/
+
+============================================================
+4. NON-NEGOTIABLE CONSTRAINTS
+============================================================
+- Integrate, don't replace existing systems.
+- Offline-first for rural health facilities.
+- Security by design: OAuth2/OIDC, MFA for admin, RBAC, TLS 1.3, AES-256 at rest,
+  immutable hash-chained audit log.
+- Standards: HL7 FHIR R4, BPMN 2.0, OpenAPI 3.0, OAuth2/OIDC, RFC 7807.
+- Modular: each service independently deployable.
+- Containerised (Docker), deployable to Kubernetes.
+- 12-factor app principles.
+- No PII in logs. Redact sensitive fields.
+- Every external call: retry with exponential backoff + circuit breaker.
+- All data at rest encrypted. All data in transit via TLS 1.3 or mTLS.
+
+============================================================
+5. CODING STANDARDS
+============================================================
+
+### General
+- Prefer boring, proven tech over novel.
+- Small functions (<40 lines), small files (<400 lines).
+- Clear names over comments. Comment only WHY, never WHAT.
+- No dead code. No commented-out code. No TODO in merged PRs.
+- Fail fast in dev; fail safe in prod.
+- No secrets in code — use env vars or secret manager.
+- Never log PII (names, DOB, MRN, contact, national ID).
+
+### Java / Spring Boot
+- Java 17 features (records, sealed, pattern matching, text blocks).
+- Package by feature, not by layer:
+  com.pha.<service>.<feature> (controller, service, repo, domain, dto, mapper)
+- DTOs as records. MapStruct for mapping.
+- Constructor injection only. No @Autowired on fields.
+- @Transactional on service methods, not controllers.
+- Validation with jakarta.validation on DTOs.
+- Errors via @ControllerAdvice returning RFC 7807 ProblemDetails.
+- Repositories: Spring Data JPA. No native SQL unless necessary (+ ADR).
+- Migrations: Flyway, forward-only, never edit a merged migration.
+- Config: application.yml per env, secrets via env vars.
+- Logging: SLF4J + logstash encoder (JSON). Include correlation ID.
+- Tests: JUnit 5 + AssertJ + Testcontainers. ≥80% coverage on business logic.
+
+### TypeScript / React
+- Strict mode on. No `any` — use `unknown` + narrowing.
+- Functional components only. Hooks over HOCs.
+- TanStack Query for server state. Zustand for local UI state.
+- Forms: React Hook Form + Zod.
+- Tables: TanStack Table.
+- Charts: Recharts.
+- Styling: Tailwind utility classes. No inline styles.
+- i18n: all user-facing strings via i18n keys.
+- Accessibility: WCAG 2.1 AA minimum (labels, keyboard nav, focus states).
+- Tests: Vitest (unit), Testing Library (component), Playwright (E2E).
+- No `console.log` in merged code — use a logger.
+
+### API Conventions
+- REST, versioned at /api/v1.
+- JSON only (unless binary).
+- Errors: RFC 7807 Problem Details.
+- Auth: Bearer JWT (OIDC).
+- Pagination: ?page=&size= (default 20, max 100).
+- Filtering: query params. Sorting: ?sort=field,asc|desc.
+- Idempotency-Key header on POST for critical operations.
+- Rate limiting: per-user + per-IP via gateway.
+- All endpoints documented in OpenAPI 3.0.
+
+### Database
+- UUID primary keys (gen_random_uuid()).
+- Timestamps: created_at, updated_at (UTC).
+- Soft delete: deleted_at nullable (where applicable).
+- Foreign keys enforced. No orphan records.
+- Indexes on all FKs and frequent query columns.
+- Migrations: one per entity group, forward-only.
+
+### BPMN
+- BPMN 2.0 XML only.
+- Every workflow: SLA + escalation + audit logging.
+- Emit Kafka events: process.started, task.created, task.completed, sla.breached.
+- Expose REST: start, list tasks, claim, complete.
+
+### Security
+- JWT validation on every service (OAuth2 resource server).
+- RBAC via @PreAuthorize with facility-scoped roles.
+- MFA enforced for admin + governance roles.
+- mTLS between services.
+- Audit log: append-only, hash-chained (each row = hash(prev_hash + row_data)).
+- Secrets via Vault or cloud KMS. Never in code, never in git.
+- SAST + DAST + dependency scanning in CI.
+- PII redaction in logs.
+
+============================================================
+6. WORKING AGREEMENTS
+============================================================
+- Commit early, commit often. Small PRs (<400 LOC).
+- Every PR: title, description, linked issue, test evidence, screenshots (UI).
+- Branch naming: feat/, fix/, chore/, docs/, refactor/
+- Conventional commits: feat(hr): add leave request endpoint
+- Never commit: secrets, .env files, node_modules, build artifacts, IDE files.
+- Always commit: code, tests, migration, OpenAPI, ADR (if architectural).
+- If spec is ambiguous: write a question in /docs/questions.md and proceed with
+  the most reasonable default, documenting the decision in an ADR.
+- Definition of Done per feature:
+  1. Code + tests committed
+  2. Tests pass in CI
+  3. OpenAPI updated
+  4. Migration written (if schema change)
+  5. ADR written (if architectural decision)
+  6. Docs + README updated
+  7. Reviewed by at least one other agent/human
+  8. Deployed to dev environment
+
+============================================================
+7. DEFINITION OF DONE (CHECKLIST)
+============================================================
+[ ] Code follows style guide
+[ ] Unit tests written and passing (≥80% coverage on business logic)
+[ ] Integration tests written and passing
+[ ] OpenAPI spec updated
+[ ] Database migration (if schema change)
+[ ] ADR written (if architectural decision)
+[ ] No secrets, no PII in logs
+[ ] Audit logging in place (for writes)
+[ ] RBAC enforced
+[ ] Error handling per RFC 7807
+[ ] README / runbook updated
+[ ] PR reviewed and approved
+[ ] CI green
+[ ] Deployed to dev
+
+============================================================
+8. TESTING REQUIREMENTS
+============================================================
+- Unit: ≥80% coverage on business logic
+- Integration: Testcontainers (Postgres, Kafka, Keycloak, WireMock)
+- Contract: Pact for external APIs
+- E2E: Playwright for critical journeys:
+  * Leave request end-to-end
+  * Work order end-to-end
+  * Procurement end-to-end
+  * KPI reporting end-to-end
+  * Rural sync end-to-end
+- Performance: k6 (API p95 < 500ms @ 1000 users)
+- Security: OWASP ZAP + Burp in CI
+- Offline sync: simulated latency + packet loss
+
+============================================================
+9. WHAT NOT TO DO
+============================================================
+- Do NOT introduce new tech without an ADR.
+- Do NOT skip tests to save time.
+- Do NOT commit secrets or PII.
+- Do NOT use `any` in TypeScript.
+- Do NOT use field injection in Spring.
+- Do NOT write native SQL without an ADR.
+- Do NOT edit merged migrations.
+- Do NOT log PII.
+- Do NOT bypass the API gateway.
+- Do NOT call external systems directly — use the integration service.
+- Do NOT store BPMN state outside the BPM engine.
+- Do NOT use synchronous calls for cross-service communication — use events.
+- Do NOT add TODO/FIXME to merged code.
+- Do NOT commit commented-out code.
+- Do NOT force-push to main or release branches.
+
+============================================================
+10. WHEN UNCERTAIN
+============================================================
+1. Check /docs/adr for prior decisions.
+2. Check /docs/questions.md — maybe already answered.
+3. If not answered, choose the simplest industry-standard solution.
+4. Document the decision in /docs/adr/NNNN-<title>.md.
+5. Add the question to /docs/questions.md for human review.
+6. Proceed with the default; do not block.
+
+============================================================
+11. PHASE SEQUENCE (REFERENCE)
+============================================================
+Phase 0 — Foundations (Weeks 1–2): repo, CI/CD, Keycloak, gateway, common libs, DB
+Phase 1 — Core Platform (Weeks 3–12): integration, MDM, BPM, governance, web shell
+Phase 2 — HR + Facilities (Weeks 13–24): HR service, facilities service, UI
+Phase 3 — Projects + Rural (Weeks 25–36): projects, rural PWA, sync, edge nodes
+Phase 4 — Optimisation (Weeks 37–48): analytics, FHIR, tuning, handover
+
+============================================================
+12. ADR TEMPLATE
+============================================================
+Save as /docs/adr/NNNN-<kebab-title>.md:
+
+# NNNN — <Title>
+
+- Status: Proposed | Accepted | Superseded by NNNN
+- Date: YYYY-MM-DD
+- Deciders: <names/roles>
+- Context: <problem>
+- Decision: <what we decided>
+- Consequences: <positive, negative, neutral>
+- Alternatives considered: <options + why rejected>
+
+============================================================
+13. COMMIT MESSAGE FORMAT
+============================================================
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+
+Types: feat, fix, chore, docs, refactor, test, perf, ci, build, revert
+Scopes: hr, facilities, projects, governance, bpm, integration, sync, gateway,
+        auth, db, ui, infra, docs
+Example:
+feat(hr): add leave request endpoint
+
+Implements POST /api/v1/leave-requests with validation, BPM workflow start,
+and audit logging. Includes unit + integration tests.
+
+Closes #42
+
+============================================================
+14. START OF SESSION CHECKLIST
+============================================================
+[ ] Pull latest main
+[ ] Read /docs/backlog.md for current epic
+[ ] Check /docs/questions.md for open items
+[ ] Check /docs/adr for relevant decisions
+[ ] Confirm tests pass locally: `make test`
+[ ] Confirm dev environment up: `make up`
+[ ] Pick smallest next task from backlog
+[ ] Create branch: feat/<scope>-<short-desc>
+
+============================================================
+15. END OF SESSION CHECKLIST
+============================================================
+[ ] Code committed and pushed
+[ ] Tests pass locally
+[ ] PR opened with description + evidence
+[ ] Backlog updated
+[ ] Questions logged (if any)
+[ ] ADR written (if architectural decision)
+[ ] Handover note in PR if work continues
+
+============================================================
+END OF .cursorrules
+============================================================
