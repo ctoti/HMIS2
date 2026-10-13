@@ -31,7 +31,9 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-@SpringBootTest(properties = {"RATE_LIMIT_PER_SECOND=1", "RATE_LIMIT_BURST=2", "BACKEND_TIMEOUT=3s"})
+@SpringBootTest(properties = {
+        "RATE_LIMIT_PER_SECOND=1", "RATE_LIMIT_BURST=2", "BACKEND_TIMEOUT=3s",
+        "logging.level.org.springframework.web.cors=DEBUG"})
 @Testcontainers
 class GatewayIntegrationTest {
 
@@ -145,6 +147,11 @@ class GatewayIntegrationTest {
                 .expectStatus().isForbidden()
                 .expectBody()
                 .jsonPath("$.type").isEqualTo("urn:pha:problem:forbidden");
+    }
+
+    @Test
+    void bindsPortalOriginFromConfiguration() {
+        assertThat(context.getBean(PhaGatewayProperties.class).allowedOrigins()).containsExactly("http://localhost:5173");
     }
 
     @Test
