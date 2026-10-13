@@ -16,7 +16,8 @@ Current epic: **Phase 0 — Foundations (Weeks 1–2)**
 - [x] Keycloak realm: roles, facility groups claim, PKCE web client, TOTP for admin + governance
 - [x] `libs/common-java`: RFC 7807 errors, correlation ID, JSON logging with PII redaction, hash-chained audit log
 - [x] `libs/common-ts`: logger, PII redaction, problem details, correlation ID
-- [ ] `libs/common-ts`: API client, OIDC auth, i18n setup (with web-portal shell)
+- [x] `libs/common-ts`: API client (bearer token, correlation ID, Idempotency-Key, RFC 7807 errors, retry with backoff)
+- [x] `apps/web-portal` shell: OIDC sign-in, role-based navigation, i18n (en, tpi), offline banner (ADR 0007)
 - [ ] `services/api-gateway` with Spring Cloud Gateway (after ADR 0004 accepted)
 - [ ] Audit log persistence: append-only table + Flyway migration, first used by hr-service
 - [ ] Terraform skeleton for dev environment (blocked on Q5: hosting target)
@@ -27,7 +28,6 @@ Current epic: **Phase 0 — Foundations (Weeks 1–2)**
 - [ ] MDM: facilities, positions, cost centres
 - [ ] bpm-service with first workflow (leave request)
 - [ ] governance-service: KPI library
-- [ ] web-portal shell
 
 ## Phase 2–4
 

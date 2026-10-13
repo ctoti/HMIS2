@@ -5,7 +5,8 @@
     "node": ">=20"
   },
   "workspaces": [
-    "libs/common-ts"
+    "libs/common-ts",
+    "apps/web-portal"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
@@ -20,6 +21,7 @@
     "eslint": "^9.39.5",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.71.1",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "eslint-plugin-react-hooks": "7.1.1"
   }
 }

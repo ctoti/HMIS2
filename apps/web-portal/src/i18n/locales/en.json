@@ -1,0 +1,53 @@
+{
+  "app": {
+    "name": "PHA Health Management Portal",
+    "skipToContent": "Skip to main content",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "mainNav": "Main"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "checking": "Checking your sign-in…",
+    "signInTitle": "Sign in to continue",
+    "signInBody": "Use your PHA account. Administrators and governance officers are asked for a one-time code from their authenticator app.",
+    "error": "Sign-in failed: {{message}}. Try again, or contact the ICT helpdesk if it keeps happening.",
+    "noAccessTitle": "You don't have access to {{module}}",
+    "noAccessBody": "Ask your supervisor to request the right role for your account."
+  },
+  "nav": {
+    "home": "Home",
+    "hr": "Human resources",
+    "facilities": "Facilities",
+    "projects": "Projects & programs",
+    "governance": "Governance"
+  },
+  "home": {
+    "title": "Welcome",
+    "yourAccess": "Your access",
+    "roles": "Roles",
+    "facilities": "Facilities",
+    "noFacilities": "No facility assigned yet",
+    "modules": "Modules",
+    "available": "Available in Phase {{phase}}"
+  },
+  "module": {
+    "comingTitle": "{{module}} is on the way",
+    "comingBody": "This module is planned for Phase {{phase}} of the platform roll-out."
+  },
+  "roles": {
+    "platform-admin": "Platform administrator",
+    "governance-officer": "Governance officer",
+    "hr-officer": "HR officer",
+    "facilities-officer": "Facilities officer",
+    "projects-officer": "Projects officer",
+    "staff": "Staff"
+  },
+  "offline": "You're offline. You can keep reading; changes will be sent when the connection returns.",
+  "language": "Language",
+  "notFound": {
+    "title": "Page not found",
+    "back": "Go to the home page"
+  }
+}

@@ -12,3 +12,5 @@ Questions needing human review. Agents proceed with the stated default and recor
 | Q6 | What integration interfaces do IFMS, Alesco, and Clinical HIMS expose (API, file drop, DB views)? | Undecided — blocks integration-service design | — | Open |
 | Q7 | Maven or Gradle; which JS monorepo tooling? | Maven multi-module + npm workspaces | [0005](adr/0005-build-tooling.md) | Open |
 | Q8 | Which Flowable release supports Spring Boot 4 (ADR 0006), and is it open source? | Check before scaffolding bpm-service; revisit ADR 0002 if none | [0006](adr/0006-spring-boot-4.md) | Open |
+| Q9 | Who reviews the Tok Pisin (`tpi`) translations in the web portal? | Draft strings shipped; need review by a native speaker before pilot | [0007](adr/0007-web-portal-client-libraries.md) | Open |
+| Q10 | Node.js 20 reached end of life in April 2026; move the TypeScript baseline to Node 22 or 24 LTS? | Stay on Node 20 per `.cursorrules` until an ADR changes it | — | Open |

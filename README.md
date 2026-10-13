@@ -4,7 +4,7 @@ Platform for Provincial Health Authorities in Papua New Guinea covering HR, faci
 
 ## Status
 
-Phase 0 — Foundations. No services are scaffolded yet; see [`docs/backlog.md`](docs/backlog.md).
+Phase 0 — Foundations. Shared libraries and the web portal shell exist; domain services do not yet. See [`docs/backlog.md`](docs/backlog.md).
 
 ## For contributors and agents
 
