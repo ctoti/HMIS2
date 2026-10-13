@@ -21,10 +21,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // Bearer tokens are never sent automatically by browsers, so API calls need no CSRF token.
                 // Requests that carry cookies still must, in case cookie-based sign-in is ever added.
-                .csrf(csrf -> csrf
-                        .requireCsrfProtectionMatcher(new AndRequestMatcher(
-                                CsrfFilter.DEFAULT_CSRF_MATCHER, request -> request.getCookies() != null))
-                        .accessDeniedHandler(problems))
+                // CSRF rejections reach the exceptionHandling access-denied handler below.
+                .csrf(csrf -> csrf.requireCsrfProtectionMatcher(new AndRequestMatcher(
+                        CsrfFilter.DEFAULT_CSRF_MATCHER, request -> request.getCookies() != null)))
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
