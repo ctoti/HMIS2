@@ -21,7 +21,7 @@ Current epic: **Phase 0 — Foundations (Weeks 1–2)**
 - [x] `apps/web-portal` shell: OIDC sign-in, role-based navigation, i18n (en, tpi), offline banner (ADR 0007)
 - [x] `services/api-gateway`: Spring Cloud Gateway with JWT validation, per-user rate limiting, retries, circuit breaker, CORS (ADR 0004 still Proposed)
 - [x] Audit log persistence: `libs/common-audit` — append-only PostgreSQL table, DB-enforced, hash-chained, verifiable (ADR 0008)
-- [ ] First service to record audited writes with `AuditLog` (hr-service, Phase 2)
+- [x] First service to record audited writes with `AuditLog` (hr-service)
 - [ ] Terraform skeleton for dev environment (blocked on Q5: hosting target)
 
 ## Phase 1 — Core Platform
@@ -31,6 +31,15 @@ Current epic: **Phase 0 — Foundations (Weeks 1–2)**
 - [ ] bpm-service with first workflow (leave request)
 - [ ] governance-service: KPI library
 
-## Phase 2–4
+## Phase 2 — HR + Facilities
+
+- [x] `services/hr-service`: staff records and leave requests (submit, list, read, cancel), facility-scoped RBAC, Idempotency-Key, audit log, OpenAPI 3.0 (ADR 0009)
+- [ ] Leave approval through the BPM workflow; publish `leave-request.submitted` (after ADR 0002, 0003 and Q8)
+- [ ] Staff record updates and transfers between facilities
+- [ ] Web portal: leave request form and HR officer leave list
+- [ ] Leave balances and working-day counting (Q11)
+- [ ] Playwright journey: leave request end to end
+
+## Phase 3–4
 
 See `.cursorrules` §11.

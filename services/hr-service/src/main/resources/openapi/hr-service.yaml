@@ -1,0 +1,456 @@
+openapi: 3.0.3
+info:
+  title: PHA HR Service
+  version: 0.1.0
+  description: >
+    Staff records and leave requests. Every call needs a Keycloak access token with the `pha-hmg-api` audience.
+    HR officers act only on the facilities in their `/facilities/<code>` groups; platform admins on all.
+    Errors are RFC 7807 Problem Details with a `correlationId`.
+servers:
+  - url: /
+security:
+  - bearerAuth: []
+tags:
+  - name: Staff
+    description: Staff records, scoped by facility
+  - name: Leave requests
+    description: Leave requests submitted by staff for their own record
+paths:
+  /api/v1/hr/staff:
+    post:
+      tags: [Staff]
+      summary: Create a staff record
+      description: Requires `hr-officer` at the record's facility, or `platform-admin`.
+      operationId: createStaff
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStaffRequest'
+      responses:
+        '201':
+          description: Created
+          headers:
+            Location:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Staff'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+    get:
+      tags: [Staff]
+      summary: List staff at a facility
+      description: Requires `hr-officer` at the facility, or `platform-admin`.
+      operationId: listStaff
+      parameters:
+        - name: facilityCode
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/FacilityCode'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: One page of staff records, sorted by employee number unless `sort` is given
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffPage'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+  /api/v1/hr/staff/me:
+    get:
+      tags: [Staff]
+      summary: The caller's own staff record
+      operationId: getMyStaffRecord
+      responses:
+        '200':
+          description: The staff record linked to the caller's account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Staff'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+  /api/v1/hr/staff/{id}:
+    get:
+      tags: [Staff]
+      summary: Get a staff record
+      description: Allowed for the staff member themself, `hr-officer` at the record's facility, or `platform-admin`.
+      operationId: getStaff
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: The staff record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Staff'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+  /api/v1/hr/leave-requests:
+    post:
+      tags: [Leave requests]
+      summary: Submit a leave request for the caller's own staff record
+      description: >
+        Requires the `staff` role and a staff record linked to the caller's account. Repeating the call with the same
+        `Idempotency-Key` and body returns the original request with 200; the same key with a different body is 409.
+      operationId: submitLeaveRequest
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            pattern: '^[A-Za-z0-9_-]{8,100}$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitLeaveRequest'
+      responses:
+        '200':
+          description: Replay of an earlier submission with the same Idempotency-Key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequest'
+        '201':
+          description: Submitted
+          headers:
+            Location:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequest'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '409':
+          description: >
+            `urn:pha:problem:hr:staff-record-not-linked`, `urn:pha:problem:hr:overlapping-leave` or
+            `urn:pha:problem:hr:idempotency-key-reused`
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    get:
+      tags: [Leave requests]
+      summary: List leave requests
+      description: >
+        Without `facilityCode`, returns the caller's own requests. With it, returns the facility's requests and needs
+        `hr-officer` at that facility, or `platform-admin`.
+      operationId: listLeaveRequests
+      parameters:
+        - name: facilityCode
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/FacilityCode'
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/LeaveStatus'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: One page of leave requests, newest start date first unless `sort` is given
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequestPage'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+  /api/v1/hr/leave-requests/{id}:
+    get:
+      tags: [Leave requests]
+      summary: Get a leave request
+      description: Allowed for the requester, `hr-officer` at the request's facility, or `platform-admin`.
+      operationId: getLeaveRequest
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: The leave request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequest'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+  /api/v1/hr/leave-requests/{id}/cancel:
+    post:
+      tags: [Leave requests]
+      summary: Cancel a submitted leave request
+      description: Only the requester can cancel, and only while the request is `SUBMITTED`.
+      operationId: cancelLeaveRequest
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: The cancelled leave request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveRequest'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '409':
+          description: '`urn:pha:problem:hr:leave-not-cancellable`'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Page:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    Size:
+      name: size
+      in: query
+      required: false
+      description: Values above 100 are reduced to 100.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    Sort:
+      name: sort
+      in: query
+      required: false
+      description: >
+        `field,asc` or `field,desc`; repeat for several fields. Staff lists sort by employeeNumber, familyName,
+        givenName, positionTitle, createdAt or updatedAt; leave request lists by startDate, endDate, leaveType,
+        status, createdAt or updatedAt. Any other field is a 400.
+      schema:
+        type: string
+  responses:
+    Problem:
+      description: RFC 7807 Problem Details
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+  schemas:
+    FacilityCode:
+      type: string
+      pattern: '^[A-Z0-9][A-Z0-9-]{1,31}$'
+      example: PMGH
+    CreateStaffRequest:
+      type: object
+      required: [employeeNumber, givenName, familyName, facilityCode, positionTitle]
+      properties:
+        employeeNumber:
+          type: string
+          pattern: '^[A-Za-z0-9-]{1,32}$'
+        userId:
+          type: string
+          maxLength: 64
+          pattern: '^[A-Za-z0-9-]+$'
+          description: Keycloak user ID of the staff member's own account, if they have one.
+        givenName:
+          type: string
+          maxLength: 100
+        familyName:
+          type: string
+          maxLength: 100
+        facilityCode:
+          $ref: '#/components/schemas/FacilityCode'
+        positionTitle:
+          type: string
+          maxLength: 120
+    Staff:
+      type: object
+      required: [id, employeeNumber, givenName, familyName, facilityCode, positionTitle, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        employeeNumber:
+          type: string
+        userId:
+          type: string
+          nullable: true
+        givenName:
+          type: string
+        familyName:
+          type: string
+        facilityCode:
+          type: string
+        positionTitle:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    StaffPage:
+      allOf:
+        - $ref: '#/components/schemas/PageMetadata'
+        - type: object
+          required: [content]
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/Staff'
+    LeaveType:
+      type: string
+      enum: [ANNUAL, SICK, FAMILY, STUDY, MATERNITY, PATERNITY, LEAVE_WITHOUT_PAY]
+    LeaveStatus:
+      type: string
+      enum: [SUBMITTED, CANCELLED]
+    SubmitLeaveRequest:
+      type: object
+      required: [leaveType, startDate, endDate]
+      properties:
+        leaveType:
+          $ref: '#/components/schemas/LeaveType'
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+          description: On or after `startDate`.
+    LeaveRequest:
+      type: object
+      required: [id, staffId, facilityCode, leaveType, startDate, endDate, calendarDays, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        staffId:
+          type: string
+          format: uuid
+        facilityCode:
+          type: string
+        leaveType:
+          $ref: '#/components/schemas/LeaveType'
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        calendarDays:
+          type: integer
+          format: int64
+          description: Days from start to end inclusive, weekends and holidays included.
+        status:
+          $ref: '#/components/schemas/LeaveStatus'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    LeaveRequestPage:
+      allOf:
+        - $ref: '#/components/schemas/PageMetadata'
+        - type: object
+          required: [content]
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/LeaveRequest'
+    PageMetadata:
+      type: object
+      required: [page, size, totalElements, totalPages]
+      properties:
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+    Problem:
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+        correlationId:
+          type: string

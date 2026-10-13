@@ -21,6 +21,7 @@
         <module>libs/common-java</module>
         <module>libs/common-audit</module>
         <module>services/api-gateway</module>
+        <module>services/hr-service</module>
     </modules>
 
     <properties>
@@ -28,6 +29,7 @@
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <spring-cloud.version>2025.1.3</spring-cloud.version>
         <jacoco.version>0.8.13</jacoco.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
         <jacoco.minimum.line.coverage>0.80</jacoco.minimum.line.coverage>
         <!-- Security overrides of Boot 4.1.1's managed versions (OSV findings); drop once a Boot release ships these. -->
         <tomcat.version>11.0.26</tomcat.version>
