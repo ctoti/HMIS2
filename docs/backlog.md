@@ -20,7 +20,8 @@ Current epic: **Phase 0 — Foundations (Weeks 1–2)**
 - [x] `libs/common-ts`: API client (bearer token, correlation ID, Idempotency-Key, RFC 7807 errors, retry with backoff)
 - [x] `apps/web-portal` shell: OIDC sign-in, role-based navigation, i18n (en, tpi), offline banner (ADR 0007)
 - [x] `services/api-gateway`: Spring Cloud Gateway with JWT validation, per-user rate limiting, retries, circuit breaker, CORS (ADR 0004 still Proposed)
-- [ ] Audit log persistence: append-only table + Flyway migration, first used by hr-service
+- [x] Audit log persistence: `libs/common-audit` — append-only PostgreSQL table, DB-enforced, hash-chained, verifiable (ADR 0008)
+- [ ] First service to record audited writes with `AuditLog` (hr-service, Phase 2)
 - [ ] Terraform skeleton for dev environment (blocked on Q5: hosting target)
 
 ## Phase 1 — Core Platform

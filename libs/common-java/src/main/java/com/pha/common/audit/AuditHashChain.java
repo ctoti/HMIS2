@@ -25,7 +25,15 @@ public final class AuditHashChain {
      * Returns the index of the first entry that breaks the chain, or empty if the chain is intact.
      */
     public static OptionalInt findFirstBrokenLink(List<SealedAuditEntry> entries) {
-        String expectedPrevious = GENESIS_HASH;
+        return findFirstBrokenLink(entries, GENESIS_HASH);
+    }
+
+    /**
+     * Checks a slice of a longer chain whose first entry must link to {@code startingPreviousHash},
+     * so a large log can be verified page by page.
+     */
+    public static OptionalInt findFirstBrokenLink(List<SealedAuditEntry> entries, String startingPreviousHash) {
+        String expectedPrevious = startingPreviousHash;
         for (int i = 0; i < entries.size(); i++) {
             SealedAuditEntry entry = entries.get(i);
             boolean linked = entry.previousHash().equals(expectedPrevious);

@@ -19,6 +19,7 @@
 
     <modules>
         <module>libs/common-java</module>
+        <module>libs/common-audit</module>
         <module>services/api-gateway</module>
     </modules>
 
@@ -40,6 +41,11 @@
             <dependency>
                 <groupId>com.pha</groupId>
                 <artifactId>common-java</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.pha</groupId>
+                <artifactId>common-audit</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -36,6 +36,15 @@ class AuditHashChainTest {
     }
 
     @Test
+    void verifiesALaterSliceFromItsPredecessorHash() {
+        List<SealedAuditEntry> chain = chainOf(4);
+        List<SealedAuditEntry> secondHalf = chain.subList(2, 4);
+
+        assertThat(AuditHashChain.findFirstBrokenLink(secondHalf, chain.get(1).hash())).isEmpty();
+        assertThat(AuditHashChain.findFirstBrokenLink(secondHalf)).hasValue(0);
+    }
+
+    @Test
     void detectsTamperedPayload() {
         List<SealedAuditEntry> chain = chainOf(3);
         SealedAuditEntry original = chain.get(1);
